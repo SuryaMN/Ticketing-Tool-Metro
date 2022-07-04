@@ -1,0 +1,124 @@
+{% extends 'myApp/base.html' %}
+
+
+{% block content %}
+{% load static %}
+<main id="main" class="main">
+
+  <div class="pagetitle">
+    <h1>Tickets</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{% url 'tickets' %}">Tickets</a></li>
+
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+
+  <section class="section">
+    <div class="row">
+      <div class="col-lg-12">
+
+        <div class="card">
+          <div class="card-body">
+            <!-- <h5 class="card-title">Tickets</h5> -->
+            {% if role == 'User' %}
+            <a class="btn btn-primary my-4" href="{% url 'raiseticket' %}">Raise Ticket</a>
+            {% endif %}
+            <!-- Table with stripped rows -->
+            {% csrf_token %}
+            <table class="table datatable">
+              <thead>
+                <tr>
+                  <th scope="col">ID</th>
+                  {% if role == 'Admin' %}
+                    <th scope="col">Username</th>
+                  {% endif %}
+                  <th scope="col">Issue Type</th>
+                  <th scope="col">Issue Sub Type</th>
+                  <th scope="col">Description</th>
+                  <th scope="col">Priority</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Status</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <!-- for loop -->
+                {% for ticket in tickets %}
+                <tr>
+                  {% if ticket.status != 'Pending' or role == 'Admin' %}
+                  <th scope="row"><a style="text-decoration: underline;color:blue;"
+                      href="{% url 'viewticket' ticket.id %}">{{ ticket.id }}</a></th>
+                  {% else %}
+                  <th scope="row"><a style="text-decoration: underline;color:blue;"
+                    href="{% url 'raiseticket' ticket.id %}">{{ ticket.id }}</a></th>
+                  {% endif %}
+                  {% if role == 'Admin' %}
+                  <td>{{ ticket.user }}</td>
+                  {% endif %}
+                  <td>{{ ticket.issue_type }}</td>
+                  <td>{{ ticket.issue_sub_type }}</td>
+                  <td>{{ ticket.description | truncatechars:15}}</td>
+                  <td>{{ ticket.priority }}</td>
+                  <td>{{ ticket.created_datetime }}</td>
+
+                  {% if ticket.status != 'Pending' %}
+                    <td {% if ticket.status == 'Accepted' %} style="color:green;" {% else %} style="color:red;" {% endif %}>{{ ticket.status }}</td>
+                  
+                  {% else %}
+                  
+                    {% if role == 'User' %}
+                      <th scope="row">
+                        <div class="d-flex justify-content-around">
+
+                          <div class="icon">
+                            <a href="{% url 'raiseticket' ticket.id %}"><i class="bi bi-pencil-square"></i></a>
+                          </div>
+                          <div class="icon">
+                            <a onclick="deleteTicket('{{ ticket.id }}')"><i class="bi bi-trash-fill"></i></a>
+                          </div>
+
+                        </div>
+                      </th>
+                    {% else %}
+                    <th scope="row">
+                      <div class="d-flex justify-content-around">
+  
+                        <div class="icon">
+                          <a onclick="changeStatus('{{ ticket.id }}',1)"><i class="bi bi-check-square-fill" style='font-size:20px;'></i></a>
+                        </div>
+                        <div class="icon">
+                          <a onclick="changeStatus('{{ ticket.id }}',0)"><i class="bi bi-x-square-fill" style='font-size:20px;'></i></a>
+                        </div>
+  
+                      </div>
+                    </th>
+                    {% endif %}
+
+                  {% endif %}
+                </tr>
+                {% endfor %}
+
+
+              </tbody>
+            </table>
+            <!-- End Table with stripped rows -->
+
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+</main><!-- End #main -->
+
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'assets/js/swal.js' %}"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+{% endblock %}

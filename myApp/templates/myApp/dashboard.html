@@ -1,0 +1,423 @@
+{% extends 'myApp/base.html' %}
+
+{% block content %}
+{% load static %}
+<main id="main" class="main">
+
+  <div class="pagetitle">
+    <h1>Dashboard</h1>
+    <nav>
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+        <li class="breadcrumb-item active">Dashboard</li>
+      </ol>
+    </nav>
+  </div><!-- End Page Title -->
+
+  <section class="section dashboard">
+    <div class="row">
+
+      <!-- Left side columns -->
+      <div class="col-lg-12">
+        <div class="row">
+
+          <!-- Total Card -->
+          <div class="col-xxl-3 col-md-6">
+            <div class="card info-card total-card">
+
+              <div class="card-body">
+                <h5 class="card-title">Total Tickets</h5>
+
+                <div class="d-flex align-items-center">
+                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-stickies"></i>
+                  </div>
+                  <div class="ps-3">
+                    <h6>{{ ticketStats.total }}</h6>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div><!-- End Total Card -->
+
+          <!-- Approved Card -->
+          <div class="col-xxl-3 col-md-6">
+            <div class="card info-card accepted-card">
+
+              <div class="card-body">
+                <h5 class="card-title">Accepted</h5>
+
+                <div class="d-flex align-items-center">
+                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-check2-circle"></i>
+                  </div>
+                  <div class="ps-3">
+                    <h6>{{ ticketStats.accepted }}</h6>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div><!-- End Approved Card -->
+
+          <!-- Pending Card -->
+          <div class="col-xxl-3 col-md-6">
+            <div class="card info-card pending-card">
+
+              <div class="card-body">
+                <h5 class="card-title">Pending</h5>
+
+                <div class="d-flex align-items-center">
+                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-clock"></i>
+                  </div>
+                  <div class="ps-3">
+                    <h6>{{ ticketStats.pending }}</h6>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div><!-- End Pending Card -->
+
+          <!-- Rejected Card -->
+          <div class="col-xxl-3 col-md-6">
+            <div class="card info-card rejected-card">
+
+              <div class="card-body">
+                <h5 class="card-title">Rejected</h5>
+
+                <div class="d-flex align-items-center">
+                  <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                    <i class="bi bi-x"></i>
+                  </div>
+                  <div class="ps-3">
+                    <h6>{{ ticketStats.rejected }}</h6>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div><!-- End Rejected Card -->
+
+
+          <!-- Reports -->
+          <div class="col-12">
+
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Reports</h5>
+
+                <!-- Reports Chart -->
+                <div id="reportsChart"></div>
+
+              </div>
+
+            </div>
+
+
+            <div class="card">
+                <div class="card-body">
+                  <h5 class="card-title">Total tickets</h5>
+                  <!-- Line Chart -->
+                  <div id="lineChart"></div>
+              </div>  
+            </div>
+          
+              <script>
+                let summary = null
+                $(document).ready(function () {
+                  $.ajax({
+                    url: "/getsummary",
+                    success: function (data) {
+
+                      //line chart
+                      new ApexCharts(document.querySelector("#lineChart"), {
+                        series: [{
+                          name: "Tickets",
+                          data: data['total_tickets']
+                        }],
+                        chart: {
+                          height: 350,
+                          type: 'line',
+                          zoom: {
+                            enabled: false
+                          }
+                        },
+                        dataLabels: {
+                          enabled: false
+                        },
+                        stroke: {
+                          curve: 'straight'
+                        },
+                        grid: {
+                          row: {
+                            colors: ['#f3f3f3', 'transparent'], // takes an array which will be repeated on columns
+                            opacity: 0.5
+                          },
+                        },
+                        xaxis: {
+                          categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                        }
+                      }).render();
+
+
+                      // Reports chart
+                      new ApexCharts(document.querySelector("#reportsChart"), {
+                        series: [{
+                          name: 'Total',
+                          data: data['total_tickets'],
+                        }, {
+                          name: 'Accepted',
+                          data: data['accepted_tickets']
+                        }, {
+                          name: 'Rejected',
+                          data: data['rejected_tickets']
+                        }, {
+                          name: 'Pending',
+                          data: data['pending_tickets']
+                        }],
+                        chart: {
+                          height: 350,
+                          type: 'area',
+                          toolbar: {
+                            show: false
+                          },
+                        },
+                        markers: {
+                          size: 4
+                        },
+                        colors: ['#4154f1', '#2eca6a', '#f53636', '#ffbb45'],
+                        fill: {
+                          type: "gradient",
+                          gradient: {
+                            shadeIntensity: 1,
+                            opacityFrom: 0.3,
+                            opacityTo: 0.4,
+                            stops: [0, 90, 100]
+                          }
+                        },
+                        dataLabels: {
+                          enabled: false
+                        },
+                        stroke: {
+                          curve: 'smooth',
+                          width: 2
+                        },
+                        xaxis: {
+                          // type: 'datetime',
+                          categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                        },
+                        // tooltip: {
+                        //   x: {
+                        //     format: 'dd/MM/yy HH:mm'
+                        //   },
+                        // }
+                      }).render();
+
+                      //Column Chart
+                      new ApexCharts(document.querySelector("#columnChart"), {
+                      series: [{
+                        name: 'Total',
+                        data: data['total_tickets']
+                      }, {
+                        name: 'Accepted',
+                        data: data['accepted_tickets']
+                      }, {
+                        name: 'Rejected',
+                        data: data['rejected_tickets']
+                      },{
+                        name: 'Pending',
+                        data: data['pending_tickets']
+                      }],
+                      chart: {
+                        type: 'bar',
+                        height: 350
+                      },
+                      plotOptions: {
+                        bar: {
+                          horizontal: false,
+                          columnWidth: '55%',
+                          endingShape: 'rounded'
+                        },
+                      },
+                      dataLabels: {
+                        enabled: false
+                      },
+                      stroke: {
+                        show: true,
+                        width: 2,
+                        colors: ['transparent']
+                      },
+                      xaxis: {
+                        categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+                      },
+                      yaxis: {
+                        title: {
+                          text: 'No. of tickets'
+                        }
+                      },
+                      fill: {
+                        opacity: 1
+                      },
+                      // tooltip: {
+                      //   y: {
+                      //     formatter: function(val) {
+                      //       return "$ " + val + " thousands"
+                      //     }
+                      //   }
+                      // }
+                    }).render();
+
+                    // pie chart
+
+                    new ApexCharts(document.querySelector("#pieChart"), {
+                      series: [data['accepted'], data['rejected'], data['pending']],
+                      chart: {
+                        height: 350,
+                        type: 'pie',
+                        toolbar: {
+                          show: true
+                        }
+                      },
+                      labels: ['Accepted', 'Rejected', 'Pending']
+                    }).render();
+                    }
+                  });
+                });
+
+
+              </script>
+
+          </div><!-- End Reports -->
+
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Column Chart</h5>
+  
+                <!-- Column Chart -->
+                <div id="columnChart"></div>
+  
+                <!-- End Column Chart -->
+  
+              </div>
+            </div>
+          </div>
+
+          <div class="col-lg-6">
+            <div class="card">
+              <div class="card-body">
+                <h5 class="card-title">Pie Chart</h5>
+  
+                <!-- Pie Chart -->
+                <div id="pieChart"></div>
+  
+              </div>
+            </div>
+          </div>
+
+
+          <!-- Recent Sales -->
+          <div class="col-12">
+            <div class="col-lg-12">
+
+              <div class="card">
+                <div class="card-body">
+                  <!-- <h5 class="card-title">Tickets</h5> -->
+                  {% if role == 'User' %}
+                  <a class="btn btn-primary my-4" href="{% url 'raiseticket' %}">Raise Ticket</a>
+                  {% endif %}
+                  <!-- Table with stripped rows -->
+                  {% csrf_token %}
+                  <table class="table datatable">
+                    <thead>
+                      <tr>
+                        <th scope="col">ID</th>
+                        {% if role == 'Admin' %}
+                        <th scope="col">Username</th>
+                        {% endif %}
+                        <th scope="col">Issue Type</th>
+                        <th scope="col">Issue Sub Type</th>
+                        <th scope="col">Description</th>
+                        <th scope="col">Priority</th>
+                        <th scope="col">Date</th>
+                        <th scope="col">Status</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      <!-- for loop -->
+                      {% for ticket in tickets %}
+                      <tr>
+                        {% if ticket.status != 'Pending' or role == 'Admin' %}
+                        <th scope="row"><a style="text-decoration: underline;color:blue;"
+                            href="{% url 'viewticket' ticket.id %}">{{ ticket.id }}</a></th>
+                        {% else %}
+                        <th scope="row"><a style="text-decoration: underline;color:blue;"
+                            href="{% url 'raiseticket' ticket.id %}">{{ ticket.id }}</a></th>
+                        {% endif %}
+                        {% if role == 'Admin' %}
+                        <td>{{ ticket.user }}</td>
+                        {% endif %}
+                        <td>{{ ticket.issue_type }}</td>
+                        <td>{{ ticket.issue_sub_type }}</td>
+                        <td>{{ ticket.description | truncatechars:15}}</td>
+                        <td>{{ ticket.priority }}</td>
+                        <td>{{ ticket.created_datetime }}</td>
+
+                        {% if ticket.status != 'Pending' %}
+                        <td {% if ticket.status == 'Accepted' %} style="color:green;" {% else %} style="color:red;" {% endif %}>{{ ticket.status }}</td>
+
+                        {% else %}
+
+                        <th scope="row">
+                          <div class="d-flex justify-content-around">
+
+                            <div class="icon">
+                              <a onclick="changeStatus('{{ ticket.id }}',1)"><i class="bi bi-check-square-fill"
+                                  style='font-size:20px;'></i></a>
+                            </div>
+                            <div class="icon">
+                              <a onclick="changeStatus('{{ ticket.id }}',0)"><i class="bi bi-x-square-fill"
+                                  style='font-size:20px;'></i></a>
+                            </div>
+
+                          </div>
+                        </th>
+
+                        {% endif %}
+                      </tr>
+                      {% endfor %}
+
+
+                    </tbody>
+                  </table>
+                  <!-- End Table with stripped rows -->
+
+                </div>
+              </div>
+
+            </div>
+          </div><!-- End Recent Sales -->
+
+
+        </div>
+      </div><!-- End Left side columns -->
+
+      <!-- Right side columns -->
+      <!-- End Right side columns -->
+
+    </div>
+  </section>
+
+</main><!-- End #main -->
+
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'assets/js/swal.js' %}"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+{% endblock %}

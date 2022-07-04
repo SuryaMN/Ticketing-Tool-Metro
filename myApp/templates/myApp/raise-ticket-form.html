@@ -1,0 +1,153 @@
+{% extends 'myApp/base.html' %}
+
+{% block content %}
+{% load static %}
+<main id="main" class="main">
+  {% csrf_token %}
+  <div class="card">
+    <div class="card-body">
+      {% if ticket %}
+
+        <div class="d-flex justify-content-between">
+
+          <h5 class="card-title">Ticket <span class="text-primary" style="font-size: 18px;">#{{ ticket.id }}</span>
+          </h5>
+          {% if ticket.status == "Pending" %}
+            <div class="my-4">
+              <button onclick="deleteTicket('{{ticket.id}}')" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#verticalycentered">Delete</button>
+            </div>
+          {% endif %}
+
+        </div>
+      {% else %}
+        <h5 class="card-title">Raise Ticket</h5>
+        <div class="pagetitle">
+          <nav>
+            <ol class="breadcrumb">
+              <li class="breadcrumb-item"><a href="{% url 'home' %}">Home</a></li>
+              <li class="breadcrumb-item">Tickets</li>
+              <!-- <li class="breadcrumb-item active">Profile</li> -->
+            </ol>
+          </nav>
+        </div><!-- End Page Title -->
+      {% endif %}
+
+      <!-- Floating Labels Form -->
+      <form class="row g-3" method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {% if ticket %}
+
+        <div class="container my-4">
+
+          <div class="row">
+            <div style="
+                font-weight: 600;
+                color: rgba(1, 41, 112, 0.6);" class="col-lg-3 col-md-4 label ">Created Datetime</div>
+            <div class="col-lg-9 col-md-8">{{ ticket.created_datetime }}</div>
+          </div>
+          <div class="row">
+            <div style="
+                font-weight: 600;
+                color: rgba(1, 41, 112, 0.6);" class="col-lg-3 col-md-4 label ">Status</div>
+            <div class="col-lg-9 col-md-8">{{ ticket.status }}</div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="col-md-6">
+          <div class="form-floating mb-3">
+            <select class="form-select" id="floatingSelect" name="issue_type" aria-label="State">
+              <option value="Hardware" {% if ticket.issue_type == "Hardware" %} selected {% endif %}>Hardware</option>
+              <option value="Network" {% if ticket.issue_type == "Network" %} selected {% endif %}>Network</option>
+              <option value="Portal Access" {% if ticket.issue_type == "Portal Access" %} selected {% endif %}>Portal
+                Access</option>
+              <option value="Configuration" {% if ticket.issue_type == "Configuration" %} selected {% endif %}>
+                Configuration</option>
+              <option value="Installation" {% if ticket.issue_type == "Installation" %} selected {% endif %}>Installation
+              </option>
+            </select>
+            <label for="floatingSelect">Issue Type</label>
+            <div class="text-danger"><span style="margin-left: 10px;">{{form.errors.issue_type|striptags}}</span></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <div class="form-floating">
+            <input type="text" class="form-control" name="issue_sub_type" placeholder="Issue Sub Type"
+              value="{{ ticket.issue_sub_type }}">
+            <label for="floatingEmail">Issue Sub Type</label>
+            <div class="text-danger"><span style="margin-left: 10px;">{{form.errors.issue_sub_type|striptags}}</span>
+            </div>
+          </div>
+        </div>
+        <div class="col-12">
+          <div class="form-floating">
+            <textarea class="form-control" name="description" placeholder="Description" id="floatingTextarea"
+              style="height: 100px;">{{ ticket.description }}</textarea>
+            <label for="floatingTextarea">Description</label>
+            <div class="text-danger"><span style="margin-left: 10px;">{{form.errors.description|striptags}}</span></div>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <fieldset class="row mb-3">
+            <legend class="col-form-label col-sm-2 pt-0">Priority</legend>
+            <div class="col-sm-10">
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="priority" id="gridRadios1" value="High" {% if ticket.priority == "High" %} checked {% endif %}>
+                <label class="form-check-label" for="gridRadios1">
+                  High
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="priority" id="gridRadios2" value="Medium" {% if ticket.priority == "Medium" %} checked {% endif %}>
+                <label class="form-check-label" for="gridRadios2">
+                  Medium
+                </label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="priority" id="gridRadios3" value="Low" {% if ticket.priority == "Low" %} checked {% endif %}>
+                <label class="form-check-label" for="gridRadios3">
+                  Low
+                </label>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        {% if ticket %}
+          <h5 class="card-title">Image</h5>
+          <img class="my-4" src="{{ ticket.image.url }}" height="100%" width="75%" />
+        {% endif %}
+
+        <div class="row mb-3">
+          <label for="inputNumber" class="col-sm-2 col-form-label">Image Upload</label>
+          <div class="col-sm-10">
+            <input class="form-control" type="file" id="formFile" name="image">
+            <div class="text-danger"><span style="margin-left: 10px;">{{form.errors.image|striptags}}</span></div>
+
+          </div>
+        </div>
+
+
+        <div class="text-center">
+
+          <button type="submit" class="btn btn-primary">
+            {% if ticket %}
+            Save
+            {% else %}
+            Submit
+            {% endif %}
+          </button>
+          <button type="reset" class="btn btn-secondary">Reset</button>
+        </div>
+      </form><!-- End floating Labels Form -->
+
+    </div>
+  </div>
+</main>
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'assets/js/swal.js' %}"></script>
+<script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+{% endblock %}
