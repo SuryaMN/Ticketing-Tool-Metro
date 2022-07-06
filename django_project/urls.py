@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from myApp import views
+from myApp import rest, views
 from django.contrib.auth import views as auth_views
 from django.conf.urls.static import static
 from django.conf import settings
@@ -33,6 +33,9 @@ urlpatterns = [
     path('getsummary/',views.getsummary,name='getsummary'),
     path('forbidden/',views.forbidden,name='forbidden'),
     path('notfound/',views.notfound,name='notfound'),
+
+    # API
+    path('get_tickets/',rest.get_tickets,name='get_tickets'),
 
     #AUTH
     path('signup',views.signupuser,name='signupuser'),

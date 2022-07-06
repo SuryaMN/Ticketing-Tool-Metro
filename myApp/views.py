@@ -208,3 +208,4 @@ def forbidden(request):
 
 def notfound(request,exception):
     return render(request,'myApp/error-404-notfound.html')
+
