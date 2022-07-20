@@ -1,3 +1,5 @@
+from itsdangerous import Serializer
+from requests import delete
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from myApp.models import Ticket
@@ -8,15 +10,16 @@ from myApp.models import Ticket
 # from rest_framework import status
 # from rest_framework.views import APIView
 # from api.serializers import CreateUserSerializer
+from .serializers import TicketSerializer
 
-# # For react native app
 
+# For react native app
 
 @api_view(['GET'])
-def get_tickets(request):
-    tickets = list(Ticket.objects.filter(deleted=False).values(
-        'id', 'issue_type', 'issue_sub_type', 'description'))
-    return Response({'tickets': tickets})
+def get_tickets(request, user_id):
+    tickets = Ticket.objects.filter(deleted=False, user=user_id)
+    serializer = TicketSerializer(tickets, many=True)
+    return Response({'tickets': serializer.data})
 
 # class CreateUserAPIView(CreateAPIView):
 #     serializer_class = CreateUserSerializer
