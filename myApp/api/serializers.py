@@ -1,11 +1,11 @@
 # from django.contrib.auth import get_user_model
-from attr import field
 from rest_framework import serializers
 from myApp.models import Ticket
 
 
 class TicketSerializer(serializers.ModelSerializer):
     username = serializers.ReadOnlyField(source="user.username")
+
     class Meta:
         model = Ticket
         fields = '__all__'

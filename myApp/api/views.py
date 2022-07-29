@@ -1,5 +1,3 @@
-from itsdangerous import Serializer
-from requests import delete
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from myApp.models import Ticket
@@ -20,6 +18,13 @@ def get_tickets(request, user_id):
     tickets = Ticket.objects.filter(deleted=False, user=user_id)
     serializer = TicketSerializer(tickets, many=True)
     return Response({'tickets': serializer.data})
+
+
+@api_view(['POST'])
+def raiseTicket(request):
+    print(request.data)
+    print(request.FILES)
+    return Response({'message': "Success"})
 
 # class CreateUserAPIView(CreateAPIView):
 #     serializer_class = CreateUserSerializer
